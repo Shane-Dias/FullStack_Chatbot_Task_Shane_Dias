@@ -102,5 +102,3 @@ touching any UI or state-management code.
 
 ## Screenshots & Video Walkthrough
 
-Placeholders — add screenshots to a `screenshots/` folder and a link to your recorded walkthrough
-here before submission, per the assignment's packaging requirements.

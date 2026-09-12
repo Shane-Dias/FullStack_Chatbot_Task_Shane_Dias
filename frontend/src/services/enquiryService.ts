@@ -13,6 +13,7 @@ export async function fetchEnquiries(
   const params: Record<string, string | number> = {};
   if (filters.status) params.status = filters.status;
   if (filters.userType) params.userType = filters.userType;
+  if (filters.priority) params.priority = filters.priority;
   if (filters.search) params.search = filters.search;
   if (filters.page) params.page = filters.page;
   if (filters.limit) params.limit = filters.limit;

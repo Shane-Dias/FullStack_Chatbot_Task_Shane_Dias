@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Enquiry, EnquiryStatus } from "../../types/enquiry";
 import { Modal } from "../common/Modal";
 import { StatusBadge, PriorityBadge } from "./StatusBadge";
@@ -20,6 +20,12 @@ export function EnquiryDetailsDrawer({ enquiry, onClose }: EnquiryDetailsDrawerP
   const updateMutation = useUpdateEnquiry();
   const deleteMutation = useDeleteEnquiry();
 
+  // Sync notes whenever a different enquiry is opened
+  useEffect(() => {
+    setNotes(enquiry?.adminNotes ?? "");
+    setConfirmDelete(false);
+  }, [enquiry?._id]);
+
   if (!enquiry) return null;
 
   const handleStatusChange = (status: EnquiryStatus) => {
@@ -27,7 +33,14 @@ export function EnquiryDetailsDrawer({ enquiry, onClose }: EnquiryDetailsDrawerP
   };
 
   const handleSaveNotes = () => {
-    updateMutation.mutate({ id: enquiry._id, updates: { adminNotes: notes } });
+    updateMutation.mutate(
+      { id: enquiry._id, updates: { adminNotes: notes } },
+      {
+        onSuccess: () => {
+          // notes state is already correct; nothing extra needed
+        },
+      }
+    );
   };
 
   const handleDelete = async () => {

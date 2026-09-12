@@ -8,6 +8,7 @@ import { Types } from "mongoose";
 export interface ListEnquiriesQuery {
   status?: string;
   userType?: string;
+  priority?: string;
   search?: string;
   page?: number;
   limit?: number;
@@ -29,6 +30,7 @@ export async function listEnquiries(query: ListEnquiriesQuery): Promise<ListEnqu
 
   if (query.status) filter.status = query.status;
   if (query.userType) filter.userType = query.userType;
+  if (query.priority) filter.priority = query.priority;
   if (query.search) {
     const regex = new RegExp(escapeRegex(query.search), "i");
     filter.$or = [{ name: regex }, { email: regex }, { interest: regex }];

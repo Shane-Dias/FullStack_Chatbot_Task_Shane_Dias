@@ -41,6 +41,7 @@ export interface EnquiryDraft {
 export interface EnquiryFilters {
   status?: EnquiryStatus | "";
   userType?: UserType | "";
+  priority?: Priority | "";
   search?: string;
   page?: number;
   limit?: number;

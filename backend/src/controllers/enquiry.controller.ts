@@ -4,11 +4,12 @@ import { sendSuccess } from "../utils/apiResponse";
 import * as enquiryService from "../services/enquiry.service";
 
 export const getEnquiries = asyncHandler(async (req: Request, res: Response) => {
-  const { status, userType, search, page, limit, sort } = req.query;
+  const { status, userType, priority, search, page, limit, sort } = req.query;
 
   const result = await enquiryService.listEnquiries({
     status: status as string | undefined,
     userType: userType as string | undefined,
+    priority: priority as string | undefined,
     search: search as string | undefined,
     page: page ? parseInt(page as string, 10) : undefined,
     limit: limit ? parseInt(limit as string, 10) : undefined,

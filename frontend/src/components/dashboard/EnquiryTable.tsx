@@ -1,5 +1,5 @@
 import { Enquiry } from "../../types/enquiry";
-import { StatusBadge } from "./StatusBadge";
+import { StatusBadge, PriorityBadge } from "./StatusBadge";
 import { formatDate } from "../../utils/formatDate";
 import { EmptyState } from "../common/EmptyState";
 import { Inbox } from "lucide-react";
@@ -12,7 +12,7 @@ interface EnquiryTableProps {
   hasActiveFilters: boolean;
 }
 
-const COLUMNS = ["Name", "Email", "User Type", "Interest", "Status", "Date"];
+const COLUMNS = ["Name", "Email", "User Type", "Interest", "Status", "Priority", "Date"];
 
 export function EnquiryTable({ enquiries, isLoading, onRowClick, onClearFilters, hasActiveFilters }: EnquiryTableProps) {
   if (isLoading) {
@@ -82,14 +82,23 @@ export function EnquiryTable({ enquiries, isLoading, onRowClick, onClearFilters,
             <tr
               key={enquiry._id}
               onClick={() => onRowClick(enquiry)}
-              className="cursor-pointer border-t border-navy-700 transition hover:bg-navy-800/60"
+              className={`cursor-pointer border-t border-navy-700 transition hover:bg-navy-800/60 ${
+                enquiry.priority === "High" ? "bg-red-500/5" : ""
+              }`}
             >
-              <td className="px-4 py-3.5 font-medium text-slate-200">{enquiry.name}</td>
+              <td className="px-4 py-3.5 font-medium text-slate-200">
+                <span className="flex items-center gap-2">
+                  {enquiry.name}
+                </span>
+              </td>
               <td className="px-4 py-3.5 text-slate-400">{enquiry.email}</td>
               <td className="px-4 py-3.5 text-slate-400">{enquiry.userType}</td>
               <td className="max-w-[200px] truncate px-4 py-3.5 text-slate-400">{enquiry.interest}</td>
               <td className="px-4 py-3.5">
                 <StatusBadge status={enquiry.status} />
+              </td>
+              <td className="px-4 py-3.5">
+                <PriorityBadge priority={enquiry.priority} />
               </td>
               <td className="whitespace-nowrap px-4 py-3.5 text-slate-400">{formatDate(enquiry.createdAt)}</td>
             </tr>

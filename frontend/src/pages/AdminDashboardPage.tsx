@@ -7,7 +7,7 @@ import { FiltersBar } from "../components/dashboard/FiltersBar";
 import { EnquiryTable } from "../components/dashboard/EnquiryTable";
 import { EnquiryDetailsDrawer } from "../components/dashboard/EnquiryDetailsDrawer";
 
-const DEFAULT_FILTERS: EnquiryFilters = { status: "", userType: "", search: "", page: 1, limit: 10 };
+const DEFAULT_FILTERS: EnquiryFilters = { status: "", userType: "", priority: "", search: "", page: 1, limit: 10 };
 
 export function AdminDashboardPage() {
   const [filters, setFilters] = useState<EnquiryFilters>(DEFAULT_FILTERS);
@@ -16,7 +16,7 @@ export function AdminDashboardPage() {
   const { data: statsData } = useDashboardStats();
   const { data, isLoading, isError, error } = useEnquiriesList(filters);
 
-  const hasActiveFilters = !!(filters.status || filters.userType || filters.search);
+  const hasActiveFilters = !!(filters.status || filters.userType || filters.priority || filters.search);
   const totalPages = data?.meta?.totalPages ?? 1;
   const currentPage = data?.meta?.page ?? 1;
 
@@ -27,7 +27,18 @@ export function AdminDashboardPage() {
         <p className="mt-1 text-sm text-slate-400">Manage incoming leads from the website and chatbot.</p>
       </div>
 
-      {statsData && <StatsCards stats={statsData} />}
+      {statsData && (
+        <StatsCards
+          stats={statsData}
+          onHighPriorityClick={() =>
+            setFilters((f) => ({
+              ...f,
+              priority: f.priority === "High" ? "" : "High",
+              page: 1,
+            }))
+          }
+        />
+      )}
 
       <div className="card space-y-4">
         <FiltersBar filters={filters} onChange={setFilters} />
