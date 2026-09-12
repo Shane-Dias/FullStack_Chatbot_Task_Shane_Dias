@@ -50,9 +50,12 @@ export function resolveIntent(message: string, context: ConversationContext): Bo
   }
 
   if (!bestIntent || bestScore < CONFIDENCE_THRESHOLD) {
+    const fallbackText =
+      context.consecutiveFallbackCount >= 1
+        ? "Still not finding what you're after? Here are the main things I can help with:"
+        : "I'm not sure I understood that. Here are a few things I can help with — or try rephrasing your question:";
     return {
-      text:
-        "I'm not sure I understood that. Here are a few things I can help with — or try rephrasing your question:",
+      text: fallbackText,
       quickReplies: FALLBACK_QUICK_REPLIES,
     };
   }

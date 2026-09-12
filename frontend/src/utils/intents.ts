@@ -41,8 +41,15 @@ export const INTENTS: Intent[] = [
     keywords: ["register", "registration", "enroll", "enrol", "sign", "signup", "join"],
     synonyms: ["how can i register", "how do i sign up"],
     response:
-      "Great! To register, I just need a few details from you — your name, contact info, and what you're interested in (a course or a service). Shall we get started?",
-    followUp: ["Yes, let's start", "Tell me about courses first"],
+      "Great! I just need a few details from you to get you registered. Let's get started! 🚀",
+    followUp: ["Tell me about courses first", "Our services"],
+    triggersLeadFlow: true,
+  },
+  {
+    id: "affirmative",
+    keywords: ["yes", "sure", "okay", "ok", "yep", "yeah", "go", "start"],
+    synonyms: ["yes please", "yes let's start", "let's go", "go ahead", "sounds good"],
+    response: "Great — let me take a few details from you.",
     triggersLeadFlow: true,
   },
   {

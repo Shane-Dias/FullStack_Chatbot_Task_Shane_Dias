@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ChatMessage, ConversationContext, ChatFlow } from "../types/chat";
-import { resolveIntent } from "../services/chatbotEngine";
+import { resolveIntent, getIntentId } from "../services/chatbotEngine";
 import { submitEnquiry } from "../services/enquiryService";
 import { EnquiryDraft, UserType } from "../types/enquiry";
 import toast from "react-hot-toast";
@@ -26,6 +26,13 @@ export function useChatbot() {
   }>({});
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [consecutiveFallbackCount, setConsecutiveFallbackCount] = useState(0);
+
+  // Ref so the setTimeout callback always reads the latest currentFlow value
+  const currentFlowRef = useRef<ChatFlow>(currentFlow);
+  useEffect(() => {
+    currentFlowRef.current = currentFlow;
+  }, [currentFlow]);
 
   const pushMessage = useCallback((msg: Omit<ChatMessage, "id" | "timestamp">) => {
     setMessages((prev) => [...prev, { ...msg, id: makeId(), timestamp: new Date().toISOString() }]);
@@ -41,22 +48,30 @@ export function useChatbot() {
       const context: ConversationContext = {
         messages,
         collectedLeadInfo,
-        currentFlow,
+        currentFlow: currentFlowRef.current,
+        consecutiveFallbackCount,
       };
 
       setIsTyping(true);
-      // Simulate a brief "typing" delay for a more natural feel.
       window.setTimeout(() => {
         const reply = resolveIntent(trimmed, context);
         pushMessage({ sender: "bot", text: reply.text, quickReplies: reply.quickReplies });
 
-        if (reply.triggersLeadFlow && currentFlow === "idle") {
+        // Detect fallback (no matching intent)
+        const intentId = getIntentId(trimmed);
+        if (!intentId) {
+          setConsecutiveFallbackCount((c) => c + 1);
+        } else {
+          setConsecutiveFallbackCount(0);
+        }
+
+        if (reply.triggersLeadFlow && currentFlowRef.current === "idle") {
           setCurrentFlow("collecting_contact_info");
         }
         setIsTyping(false);
       }, 500);
     },
-    [messages, collectedLeadInfo, currentFlow, pushMessage]
+    [messages, collectedLeadInfo, consecutiveFallbackCount, pushMessage]
   );
 
   const submitLead = useCallback(
@@ -76,6 +91,7 @@ export function useChatbot() {
         pushMessage({
           sender: "bot",
           text: `Thanks, ${info.name}! Your enquiry has been received. Our team will reach out to you shortly at ${info.email}.`,
+          quickReplies: ["Our services", "Our courses", "Contact DroneTV"],
         });
         toast.success("Enquiry submitted successfully!");
         setCurrentFlow("idle");
@@ -96,13 +112,19 @@ export function useChatbot() {
   );
 
   const cancelLeadFlow = useCallback(() => {
+    pushMessage({
+      sender: "bot",
+      text: "No problem! Feel free to explore more or come back when you're ready. 😊",
+      quickReplies: ["Our services", "Our courses", "I want to register"],
+    });
     setCurrentFlow("idle");
-  }, []);
+  }, [pushMessage]);
 
   const resetConversation = useCallback(() => {
     setMessages([{ ...GREETING, id: makeId(), timestamp: new Date().toISOString() }]);
     setCurrentFlow("idle");
     setCollectedLeadInfo({});
+    setConsecutiveFallbackCount(0);
   }, []);
 
   return {

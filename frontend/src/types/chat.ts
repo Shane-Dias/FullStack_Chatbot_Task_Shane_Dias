@@ -16,6 +16,7 @@ export interface ConversationContext {
   };
   currentFlow: ChatFlow;
   lastIntentId?: string;
+  consecutiveFallbackCount: number;
 }
 
 export interface BotReply {
